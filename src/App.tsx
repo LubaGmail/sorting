@@ -5,9 +5,16 @@ import './App.css';
 
 const URL = 'https://hn.algolia.com/api/v1/search?query=';
 
+export interface IHit {
+  title: string,
+  author: string,
+  num_comments: number,
+  points: number
+}
+
 function App() {
   const [searchTerm, setSearchTerm] = React.useState('')
-  const [hits, setHits] = React.useState([])
+  const [hits, setHits] = React.useState<IHit[]>([])
 
   const handleFetchStories = async () => {
     try {
@@ -22,17 +29,17 @@ function App() {
     handleFetchStories()
   }, [])
 
-  const handleSearchSubmit = (e: any) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('handleSearchSubmit', searchTerm)
   }
 
-  const handleSearchReset = (e: any) => {
+  const handleSearchReset = (e: React.FormEvent) => {
     e.preventDefault()
     setSearchTerm('')
   }
   
-  const handleSearchChange = ( e: any ) => {
+  const handleSearchChange = ( e: React.ChangeEvent<HTMLInputElement>  ) => {
     console.log('handleSearchChange', e.target.value)
     setSearchTerm(e.target.value)
   }
@@ -47,16 +54,21 @@ function App() {
       />
 
       <List hits={hits}
-      />
+      />  
     </div>
   );
 }
 
-const SearchForm = ( props: any ) => {
+interface SearchFormProps {
+  searchTerm: string;
+  handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSearchSubmit: (e: React.FormEvent) => void;
+  handleSearchReset: (e: React.FormEvent) => void;
+}
+const SearchForm:React.FC<SearchFormProps> = ( props) => {
   const {searchTerm, handleSearchChange, handleSearchSubmit, handleSearchReset} = props
 
   return (
-    
     <>
       <h4>Search Form</h4>
       <form onSubmit={ handleSearchSubmit } onReset={ handleSearchReset }
@@ -71,7 +83,11 @@ const SearchForm = ( props: any ) => {
   )
 }
 
-const Input = (props: any) => {
+interface InputProps {
+  searchTerm: string,
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+const Input:React.FC<InputProps> = (props) => {
   const { searchTerm } = props
   const {onSearchChange } = props
 
@@ -88,14 +104,10 @@ const Input = (props: any) => {
   )
 }
 
-interface IHit {
-  title: string,
-  author: string,
-  num_comments: number,
-  point: number
+interface ListProps {
+  hits: IHit[]
 }
-
-const List = (props: any) => {
+const List:React.FC<ListProps> = (props) => {
   const { hits } = props
   const [sortedList, setSortedList] = React.useState<IHit[]>(hits)
  
@@ -154,8 +166,10 @@ const List = (props: any) => {
     </>
   )
 }
-
-const Item = (props: any) => {
+type Props = {
+  el: IHit
+}
+const Item:React.FC<Props> = (props) => {
   const { el } = props
  
   return (
